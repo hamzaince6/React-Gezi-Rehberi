@@ -15,7 +15,7 @@ export const fetchStories = async (): Promise<TravelStory[]> => {
     console.log('Hikayeler çağrısı başlatılıyor...');
     
     const response = await axios.get('/.netlify/functions/stories', {
-      timeout: 15000, // 15 saniye timeout
+      timeout: 30000, // 30 saniye timeout
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
