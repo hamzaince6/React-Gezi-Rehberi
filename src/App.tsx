@@ -18,6 +18,7 @@ import AdminLayout from './components/admin/AdminLayout';
 import Login from './components/admin/Login';
 import Dashboard from './components/admin/Dashboard';
 import Stories from './components/admin/Stories';
+import AdminGuides from './components/admin/Guides';
 import TravelStories from './components/TravelStories';
 import AllStories from './pages/AllStories';
 import StoryDetail from './pages/StoryDetail';
@@ -89,6 +90,7 @@ export default function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="stories" element={<Stories />} />
+          <Route path="guides" element={<AdminGuides />} />
         </Route>
         <Route path="/admin/login" element={<Login />} />
         <Route path="/stories" element={<AllStories />} />

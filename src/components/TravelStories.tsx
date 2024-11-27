@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
 import { Clock, ThumbsUp, MessageCircle, ArrowRight } from 'lucide-react';
+import axios from 'axios'; // Make sure to import axios
 
 interface Story {
   id: number;
@@ -20,16 +21,48 @@ interface Story {
 
 export default function TravelStories() {
   const [stories, setStories] = useState<Story[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedStories = localStorage.getItem('travelStories');
-    if (savedStories) {
-      setStories(JSON.parse(savedStories));
-    }
+    const fetchStories = async () => {
+      try {
+        // Update this URL to match your backend API endpoint
+        const response = await axios.get('http://localhost:3001/api/stories');
+        setStories(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching stories:', err);
+        setError('Failed to load stories');
+        setLoading(false);
+      }
+    };
+
+    fetchStories();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="py-20 bg-gray-50 text-center">
+        <p>Hikayeler yükleniyor...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-20 bg-gray-50 text-center text-red-500">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   if (stories.length === 0) {
-    return null;
+    return (
+      <div className="py-20 bg-gray-50 text-center">
+        <p>Henüz hikaye bulunmamaktadır.</p>
+      </div>
+    );
   }
 
   return (

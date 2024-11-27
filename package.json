@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,10 +13,16 @@
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.14.2",
     "@google/generative-ai": "^0.2.1",
+    "@heroicons/react": "^2.2.0",
     "@splidejs/react-splide": "^0.7.12",
     "@splidejs/splide": "^4.1.4",
     "@turf/turf": "^6.5.0",
+    "@types/mssql": "^9.1.5",
+    "axios": "^1.7.8",
+    "cors": "^2.8.5",
     "date-fns": "^3.3.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "firebase": "^10.8.0",
     "leaflet": "^1.9.4",
     "leaflet-measure": "^3.1.0",
@@ -25,6 +32,7 @@
     "leaflet.heat": "^0.2.0",
     "leaflet.markercluster": "^1.5.3",
     "lucide-react": "^0.344.0",
+    "mssql": "^11.0.1",
     "react": "^18.3.1",
     "react-calendar": "^4.8.0",
     "react-datepicker": "^6.2.0",

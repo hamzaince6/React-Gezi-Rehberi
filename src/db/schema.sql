@@ -1,0 +1,12 @@
+CREATE TABLE Stories (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    title NVARCHAR(255) NOT NULL,
+    excerpt NVARCHAR(MAX) NOT NULL,
+    image NVARCHAR(MAX) NOT NULL,
+    authorName NVARCHAR(100) NOT NULL,
+    authorAvatar NVARCHAR(MAX) NOT NULL,
+    readTime NVARCHAR(50) NOT NULL,
+    likes INT DEFAULT 0,
+    comments INT DEFAULT 0,
+    createdAt DATETIME DEFAULT GETDATE()
+);

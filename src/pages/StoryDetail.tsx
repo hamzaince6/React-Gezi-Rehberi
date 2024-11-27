@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Clock, ThumbsUp, MessageCircle, User } from 'lucide-react';
+import { Clock, ThumbsUp, MessageCircle, Calendar } from 'lucide-react';
+import axios from 'axios';
+import Map from '../components/Map';
 
 interface Story {
   id: number;
@@ -14,30 +16,62 @@ interface Story {
   readTime: string;
   likes: number;
   comments: number;
+  createdAt: string;
+  location?: {
+    lat: number;
+    lng: number;
+    title: string;
+  };
+  route?: {
+    start: [number, number];
+    end: [number, number];
+  };
 }
 
 export default function StoryDetail() {
   const { id } = useParams();
   const [story, setStory] = useState<Story | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedStories = localStorage.getItem('travelStories');
-    if (savedStories) {
-      const stories = JSON.parse(savedStories);
-      const foundStory = stories.find((s: Story) => s.id === Number(id));
-      if (foundStory) {
-        setStory(foundStory);
+    const fetchStory = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/api/stories/${id}`);
+        setStory(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching story:', err);
+        setError('Failed to load story');
+        setLoading(false);
       }
-    }
+    };
+
+    fetchStory();
   }, [id]);
 
-  if (!story) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 pt-24 flex items-center justify-center">
-        <p className="text-gray-600">Hikaye bulunamadı.</p>
+        <p className="text-gray-600">Hikaye yükleniyor...</p>
       </div>
     );
   }
+
+  if (error || !story) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 flex items-center justify-center">
+        <p className="text-red-500">{error || 'Hikaye bulunamadı.'}</p>
+      </div>
+    );
+  }
+
+  // Format the date
+  const formattedDate = new Date(story.createdAt).toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -69,6 +103,10 @@ export default function StoryDetail() {
             <p className="text-lg font-medium text-gray-900">{story.author.name}</p>
             <div className="flex items-center space-x-4 text-sm text-gray-500">
               <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-1" />
+                <span>{formattedDate}</span>
+              </div>
+              <div className="flex items-center">
                 <Clock className="w-4 h-4 mr-1" />
                 <span>{story.readTime} okuma süresi</span>
               </div>
@@ -88,6 +126,19 @@ export default function StoryDetail() {
         <div className="prose prose-lg max-w-none">
           <p className="text-gray-600 leading-relaxed mb-8">{story.excerpt}</p>
           
+          {(story.location || story.route) && (
+            <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+              <Map
+                center={story.location ? [story.location.lat, story.location.lng] : undefined}
+                markers={story.location ? [{
+                  position: [story.location.lat, story.location.lng],
+                  title: story.location.title
+                }] : []}
+                routing={story.route}
+              />
+            </div>
+          )}
+
           {/* Örnek içerik - gerçek içerik admin panelinden eklenebilir */}
           <p className="text-gray-600 leading-relaxed mb-6">
             İstanbul'un tarihi sokaklarında yürürken, her köşe başında yeni bir hikaye keşfediyorsunuz. 
