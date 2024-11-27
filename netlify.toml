@@ -1,24 +1,18 @@
 [build]
   command = "npm install && npm run build"
-  functions = "netlify/functions"
   publish = "dist"
+  functions = "netlify/functions"
 
-[build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["mssql"]
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-
-[functions]
-  node_bundler = "esbuild"
-  external_node_modules = ["mssql"]
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
