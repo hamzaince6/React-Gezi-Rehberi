@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Search, Star, MapPin, Clock, Users, Loader2 } from 'lucide-react';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/react-splide/css';
@@ -58,6 +58,10 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const location = useLocation();
+
+  // Check if current route is admin route
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   const handleSearch = async (location: string, dates: string) => {
     setLoading(true);
@@ -80,7 +84,7 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      {!isAdminRoute && <Header />}
       <Routes>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Dashboard />} />

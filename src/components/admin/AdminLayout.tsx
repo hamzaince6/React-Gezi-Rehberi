@@ -1,58 +1,61 @@
-import React from 'react';
-import { Outlet, Navigate, Link } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, LogOut } from 'lucide-react';
-
-const isAuthenticated = () => {
-  return localStorage.getItem('adminToken') !== null;
-};
+import React, { useEffect } from 'react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, BookOpen, LogOut, Compass } from 'lucide-react';
 
 export default function AdminLayout() {
-  if (!isAuthenticated()) {
-    return <Navigate to="/admin/login" />;
-  }
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      navigate('/admin/login');
+    }
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
-    window.location.href = '/admin/login';
+    navigate('/admin/login');
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="w-64 bg-white h-screen shadow-lg fixed">
-          <div className="p-4">
-            <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
-          </div>
-          <nav className="mt-8">
-            <Link
-              to="/admin/dashboard"
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-            >
-              <LayoutDashboard className="w-5 h-5 mr-3" />
-              Dashboard
-            </Link>
-            <Link
-              to="/admin/stories"
-              className="flex items-center px-4 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-            >
-              <BookOpen className="w-5 h-5 mr-3" />
-              Gezgin Hikayeleri
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600"
-            >
-              <LogOut className="w-5 h-5 mr-3" />
-              Çıkış Yap
-            </button>
-          </nav>
-        </div>
+      {/* Sidebar */}
+      <div className="fixed inset-y-0 left-0 w-64 bg-indigo-700 text-white">
+        {/* Logo */}
+        <Link to="/" className="flex items-center space-x-2 p-4 hover:bg-indigo-800">
+          <Compass className="h-8 w-8" />
+          <span className="text-xl font-bold">Gezi Rehberim</span>
+        </Link>
 
-        {/* Main Content */}
-        <div className="ml-64 flex-1 p-8">
-          <Outlet />
-        </div>
+        {/* Navigation */}
+        <nav className="mt-8 space-y-2 px-4">
+          <Link
+            to="/admin"
+            className="flex items-center space-x-2 p-2 rounded hover:bg-indigo-800"
+          >
+            <LayoutDashboard className="h-5 w-5" />
+            <span>Admin Anasayfa</span>
+          </Link>
+          <Link
+            to="/admin/stories"
+            className="flex items-center space-x-2 p-2 rounded hover:bg-indigo-800"
+          >
+            <BookOpen className="h-5 w-5" />
+            <span>Gezgin Hikayeleri</span>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-2 p-2 rounded hover:bg-indigo-800 w-full text-left"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Çıkış Yap</span>
+          </button>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="ml-64 flex-1 p-8 pt-16">
+        <Outlet />
       </div>
     </div>
   );
