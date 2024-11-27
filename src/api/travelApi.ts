@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI('AIzaSyB54FnBVple_fdIJ54G1EUe0nccsrVMLTY');
-const UNSPLASH_API_KEY = 'QPxPERHGLldaJCnmNsuNzhiJo3PhWHv4Y40ybVGAhcc';
-const UNSPLASH_API_URL = 'https://api.unsplash.com/photos/random';
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_GENERATIVE_AI_KEY);
+const UNSPLASH_API_KEY = import.meta.env.VITE_UNSPLASH_API_KEY;
+const UNSPLASH_API_URL = import.meta.env.VITE_UNSPLASH_API_URL;
 
 const DEFAULT_IMAGES = [
     'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0',
@@ -16,7 +16,6 @@ const DEFAULT_IMAGES = [
     'https://images.unsplash.com/photo-1499002238440-d264edd596ec',
     'https://images.unsplash.com/photo-1497493292307-31c376b6e479',
 ];
-
 
 const PROMPTS = {
  description: (location: string) =>
