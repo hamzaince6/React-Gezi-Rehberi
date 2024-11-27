@@ -1,14 +1,26 @@
 import express from 'express';
-import cors from 'cors';
 import sql from 'mssql';
+import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import path from 'path';
 
-// Load environment variables
-dotenv.config();
+// ES Module için __dirname ayarı
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// .env dosyasını yükle
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
+const PORT = process.env.PORT || 3001;
 
-// Database configuration
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// SQL Server Bağlantı Konfigürasyonu
 const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -17,11 +29,11 @@ const config = {
   port: Number(process.env.DB_PORT),
   options: {
     encrypt: true,
-    trustServerCertificate: true,
-  },
+    trustServerCertificate: true
+  }
 };
 
-// Create a new connection pool
+// Database connection pool
 const pool = new sql.ConnectionPool(config);
 
 // Connect to database
@@ -34,9 +46,6 @@ pool.connect().then(() => {
   console.error('Database connection failed:', err);
   dbConnected = false;
 });
-
-app.use(cors());
-app.use(express.json());
 
 // Middleware to check database connection
 app.use((req, res, next) => {
@@ -659,7 +668,14 @@ app.delete('/api/guides/:id', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+// Server'ı başlat
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
+  console.log('Ortam değişkenleri:', {
+    DB_SERVER: process.env.DB_SERVER ? 'SET' : 'NOT SET',
+    DB_NAME: process.env.DB_NAME ? 'SET' : 'NOT SET',
+    DB_PORT: process.env.DB_PORT ? 'SET' : 'NOT SET',
+    DB_USER: process.env.DB_USER ? 'SET' : 'NOT SET',
+    DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET'
+  });
 });

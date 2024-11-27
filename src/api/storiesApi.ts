@@ -10,13 +10,14 @@ export interface TravelStory {
   createdAt: string;
 }
 
-const API_BASE_URL = import.meta.env.PROD 
-  ? 'https://enchanting-duckanoo-aae29f.netlify.app/.netlify/functions'
-  : '/.netlify/functions';
+// API URL'sini ortama göre ayarla
+const API_BASE_URL = import.meta.env.DEV 
+  ? 'http://localhost:5000/api'  // Geliştirme ortamı
+  : '/.netlify/functions';       // Üretim ortamı
 
 export const fetchStories = async (): Promise<TravelStory[]> => {
   try {
-    console.log('Hikayeler çağrısı başlatılıyor...', API_BASE_URL);
+    console.log('Hikayeler çağrısı başlatılıyor...', { API_BASE_URL });
     
     const response = await axios.get(`${API_BASE_URL}/stories`, {
       timeout: 30000,
@@ -26,42 +27,35 @@ export const fetchStories = async (): Promise<TravelStory[]> => {
       }
     });
 
+    console.log('API Yanıtı:', response.data);
+
     if (!response.data) {
       console.warn('API yanıtı boş');
       return [];
     }
 
-    console.log('API Yanıtı:', response.data);
-
-    if (!Array.isArray(response.data)) {
-      console.error('API yanıtı bir dizi değil:', response.data);
+    if (Array.isArray(response.data)) {
+      console.log(`Toplam ${response.data.length} hikaye getirildi`);
+      return response.data;
+    } else if (response.data.recordset && Array.isArray(response.data.recordset)) {
+      console.log(`Toplam ${response.data.recordset.length} hikaye getirildi`);
+      return response.data.recordset;
+    } else {
+      console.error('Beklenmeyen API yanıt formatı:', response.data);
       return [];
     }
-
-    if (response.data.length === 0) {
-      console.warn('Hikaye bulunamadı');
-      return [];
-    }
-
-    console.log(`Toplam ${response.data.length} hikaye getirildi`);
-    return response.data;
   } catch (error) {
-    console.error('Hikayeler Getirilirken Hata:', error);
+    console.error('Hikayeler Getirilirken Hata:', {
+      error,
+      baseUrl: API_BASE_URL,
+      env: import.meta.env.MODE
+    });
     
     if (axios.isAxiosError(error)) {
       if (error.response) {
-        console.error('Sunucu Hatası:', {
-          status: error.response.status,
-          data: error.response.data,
-          headers: error.response.headers
-        });
         throw new Error(`Sunucu hatası: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
       } else if (error.request) {
-        console.error('İstek Hatası:', error.request);
-        throw new Error('Sunucudan yanıt alınamadı');
-      } else {
-        console.error('Axios Hatası:', error.message);
-        throw new Error('İstek oluşturulurken hata oluştu');
+        throw new Error(`Sunucuya ulaşılamadı: ${API_BASE_URL}/stories`);
       }
     }
     
