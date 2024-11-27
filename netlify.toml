@@ -18,3 +18,7 @@
     Access-Control-Allow-Origin = "*"
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["mssql"]
