@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const UNSPLASH_API_KEY = import.meta.env.VITE_UNSPLASH_API_KEY;
-const UNSPLASH_API_URL = import.meta.env.VITE_UNSPLASH_API_URL;
+const UNSPLASH_API_KEY = 'QPxPERHGLldaJCnmNsuNzhiJo3PhWHv4Y40ybVGAhcc';
+const UNSPLASH_API_URL = 'https://api.unsplash.com/photos/random';
 
 // Fallback images in case API fails
 const DEFAULT_IMAGES = {
