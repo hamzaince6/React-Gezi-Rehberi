@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getRandomImage } from '../services/imageService';
 import type { ImageCategory } from '../services/imageService';
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_GENERATIVE_AI_KEY);
+const genAI = new GoogleGenerativeAI('AIzaSyDg5Lsm9mM8y_EV2DvkDP7BHR5b9Gww0c4');
 
 const PROMPTS = {
   description: (location: string) =>
