@@ -36,52 +36,15 @@ const config = {
 // Database connection pool
 const pool = new sql.ConnectionPool(config);
 
-// Connect to database with retry logic
+// Connect to database
 let dbConnected = false;
-const MAX_RETRIES = 5;
-const RETRY_DELAY = 5000; // 5 seconds
 
-async function connectWithRetry(retryCount = 0) {
-  try {
-    await pool.connect();
-    console.log('Connected to MSSQL successfully');
-    dbConnected = true;
-  } catch (err) {
-    console.error(`Database connection attempt ${retryCount + 1} failed. Details:`, {
-      message: err.message,
-      code: err.code,
-      state: err.state,
-      number: err.number
-    });
-    
-    if (retryCount < MAX_RETRIES) {
-      console.log(`Retrying in ${RETRY_DELAY/1000} seconds...`);
-      setTimeout(() => connectWithRetry(retryCount + 1), RETRY_DELAY);
-    } else {
-      console.error('Max retries reached. Database connection failed.');
-      dbConnected = false;
-    }
-  }
-}
-
-// Start connection process
-connectWithRetry();
-
-// Log environment variables (without sensitive data)
-console.log('Ortam değişkenleri:', {
-  DB_SERVER: process.env.DB_SERVER ? 'SET' : 'NOT SET',
-  DB_NAME: process.env.DB_NAME ? 'SET' : 'NOT SET',
-  DB_PORT: process.env.DB_PORT ? 'SET' : 'NOT SET',
-  DB_USER: process.env.DB_USER ? 'SET' : 'NOT SET',
-  DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET'
-});
-
-// Log connection config (without sensitive data)
-console.log('Bağlantı yapılandırması:', {
-  server: config.server,
-  database: config.database,
-  port: config.port,
-  options: config.options
+pool.connect().then(() => {
+  console.log('Connected to MSSQL successfully');
+  dbConnected = true;
+}).catch(err => {
+  console.error('Database connection failed:', err);
+  dbConnected = false;
 });
 
 // Middleware to check database connection
@@ -285,7 +248,7 @@ app.post('/api/stories', async (req, res) => {
       .input('image', sql.NVarChar, image)
       .input('authorName', sql.NVarChar, author.name)
       .input('authorAvatar', sql.NVarChar, author.avatar)
-      .input('readTime', sql.NVarChar, readTime)
+      .input('readTime', sql.Int, readTime)
       .input('locationLat', sql.Float, location?.lat || null)
       .input('locationLng', sql.Float, location?.lng || null)
       .input('locationTitle', sql.NVarChar, location?.title || null)
@@ -400,7 +363,7 @@ app.put('/api/stories/:id', async (req, res) => {
       .input('image', sql.NVarChar, image)
       .input('authorName', sql.NVarChar, author.name)
       .input('authorAvatar', sql.NVarChar, author.avatar)
-      .input('readTime', sql.NVarChar, readTime)
+      .input('readTime', sql.Int, readTime)
       .input('locationLat', sql.Float, location?.lat || null)
       .input('locationLng', sql.Float, location?.lng || null)
       .input('locationTitle', sql.NVarChar, location?.title || null)
@@ -705,29 +668,14 @@ app.delete('/api/guides/:id', async (req, res) => {
   }
 });
 
-// Database Schema Update Endpoint
-app.post('/api/update-schema', async (req, res) => {
-  try {
-    console.log('Starting schema update...');
-    
-    // Read the SQL file
-    const sqlFile = await import('fs').then(fs => fs.promises.readFile('./update-schema.sql', 'utf8'));
-    
-    // Execute the SQL commands
-    await pool.request().query(sqlFile);
-    
-    console.log('Schema updated successfully');
-    res.json({ message: 'Database schema updated successfully' });
-  } catch (err) {
-    console.error('Error updating schema:', err);
-    res.status(500).json({ 
-      error: 'Schema update failed',
-      details: err.message 
-    });
-  }
-});
-
 // Server'ı başlat
 app.listen(PORT, () => {
   console.log(`Server http://localhost:${PORT} adresinde çalışıyor`);
+  console.log('Ortam değişkenleri:', {
+    DB_SERVER: process.env.DB_SERVER ? 'SET' : 'NOT SET',
+    DB_NAME: process.env.DB_NAME ? 'SET' : 'NOT SET',
+    DB_PORT: process.env.DB_PORT ? 'SET' : 'NOT SET',
+    DB_USER: process.env.DB_USER ? 'SET' : 'NOT SET',
+    DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET'
+  });
 });
