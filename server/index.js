@@ -20,11 +20,22 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
     origin: [
         'http://localhost:3000',
-        'https://gezirehberim.netlify.app'  // Netlify sitenizin URL'i
+        'http://localhost:5173',
+        'https://gezirehberim.netlify.app'
     ],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 app.use(express.json());
+
+// Environment variables check
+const requiredEnvVars = ['DB_SERVER', 'DB_NAME', 'DB_PORT', 'DB_USER', 'DB_PASSWORD'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  process.exit(1);
+}
 
 // SQL Server Bağlantı Konfigürasyonu
 const config = {
@@ -36,7 +47,9 @@ const config = {
   options: {
     encrypt: true,
     trustServerCertificate: true,
-    enableArithAbort: true
+    enableArithAbort: true,
+    connectionTimeout: 30000,
+    requestTimeout: 30000
   }
 };
 
@@ -46,13 +59,20 @@ const pool = new sql.ConnectionPool(config);
 // Connect to database
 let dbConnected = false;
 
-pool.connect().then(() => {
-  console.log('Connected to MSSQL successfully');
-  dbConnected = true;
-}).catch(err => {
-  console.error('Database connection failed:', err);
-  dbConnected = false;
-});
+async function connectToDatabase() {
+  try {
+    await pool.connect();
+    console.log('Connected to MSSQL successfully');
+    dbConnected = true;
+  } catch (err) {
+    console.error('Database connection failed:', err);
+    dbConnected = false;
+    // 5 saniye sonra tekrar dene
+    setTimeout(connectToDatabase, 5000);
+  }
+}
+
+connectToDatabase();
 
 // Middleware to check database connection
 app.use((req, res, next) => {
@@ -66,7 +86,7 @@ app.use((req, res, next) => {
 // API Routes
 app.get('/api/stories', async (req, res) => {
   try {
-    console.log('Starting story fetching...');
+    console.log('Fetching stories from database...');
     const result = await pool.request()
       .query(`
         SELECT 
@@ -82,17 +102,11 @@ app.get('/api/stories', async (req, res) => {
           createdAt,
           locationLat,
           locationLng,
-          locationTitle,
-          routeStartLat,
-          routeStartLng,
-          routeEndLat,
-          routeEndLng
+          locationTitle
         FROM Stories
         ORDER BY createdAt DESC
       `);
-
-    console.log('SQL query executed successfully, result:', result);
-    // Transform the data to match frontend expectations
+    
     const stories = result.recordset.map(story => ({
       id: story.id,
       title: story.title,
@@ -105,37 +119,12 @@ app.get('/api/stories', async (req, res) => {
       readTime: story.readTime,
       likes: story.likes,
       comments: story.comments,
-      createdAt: story.createdAt,
-      ...(story.locationLat && story.locationLng && {
-        location: {
-          lat: story.locationLat,
-          lng: story.locationLng,
-          title: story.locationTitle
-        }
-      }),
-      ...(story.routeStartLat && story.routeStartLng && story.routeEndLat && story.routeEndLng && {
-        route: {
-          start: [story.routeStartLat, story.routeStartLng],
-          end: [story.routeEndLat, story.routeEndLng]
-        }
-      })
+      createdAt: story.createdAt
     }));
 
     res.json(stories);
   } catch (err) {
-    console.error('Detailed error in story fetching:', err);
-    console.error('Error stack:', err.stack);
-    
-    // Check for specific SQL errors
-    if (err instanceof sql.RequestError) {
-      console.error('SQL Request Error:', err.message);
-      return res.status(500).json({
-        error: 'Veritabanı işlemi başarısız oldu',
-        details: err.message,
-        code: err.code
-      });
-    }
-
+    console.error('Error fetching stories:', err);
     res.status(500).json({ 
       error: 'Hikayeler alınırken bir hata oluştu',
       details: err.message 
@@ -695,3 +684,7 @@ console.log('Database Config:', {
     // Güvenlik için password'ü loglama
     user: process.env.DB_USER
 });
+
+const API_BASE_URL = import.meta.env.PROD 
+  ? '/.netlify/functions'        // Üretim ortamı
+  : 'http://localhost:3001/api'; // Geliştirme ortamı
