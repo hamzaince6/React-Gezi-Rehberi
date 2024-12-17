@@ -20,6 +20,7 @@ import Dashboard from './components/admin/Dashboard';
 import Stories from './components/admin/Stories';
 import AdminGuides from './components/admin/Guides';
 import TravelStories from './components/TravelStories';
+import TravelSkeleton from './components/TravelSkeleton';
 import AllStories from './pages/AllStories';
 import StoryDetail from './pages/StoryDetail';
 import { getTravelRecommendations } from './api/travelApi';
@@ -132,14 +133,12 @@ export default function App() {
                 </div>
               </div>
 
-              {loading && (
-                <div className="flex flex-col items-center justify-center py-20">
-                  <Loader2 className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-                  <p className="text-xl text-gray-600">Seyahat önerileri hazırlanıyor...</p>
-                </div>
+              {loading ? (
+                <TravelSkeleton />
+              ) : (
+                results && <TravelGrid results={results} />
               )}
 
-              {!loading && results && <TravelGrid results={results} />}
 
               {!hasSearched && (
                   <>

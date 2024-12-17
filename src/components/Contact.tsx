@@ -1,13 +1,4 @@
 import React, { useState } from "react";
-import { Splide, SplideSlide } from "@splidejs/react-splide";
-import "@splidejs/react-splide/css";
-
-const contactSlides = [
-    { image: "https://images.unsplash.com/photo-1682687982501-1e58ab814714", title: "İstanbul" },
-    { image: "https://images.unsplash.com/photo-1682687982468-b937d2c36b04", title: "Ankara" },
-    { image: "https://images.unsplash.com/photo-1682687982185-531d09ec56fc", title: "İzmir" },
-    { image: "https://images.unsplash.com/photo-1682695797221-8164ff1fafc9", title: "Antalya" }
-];
 
 const Contact: React.FC = () => {
     // Form state
@@ -54,7 +45,7 @@ const Contact: React.FC = () => {
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 pt-24">
+            <div className="container mx-auto px-4">
                 {/* Bento Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-16">
                     {/* Contact Information Card */}
@@ -103,56 +94,20 @@ const Contact: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Image Slider Section */}
-                <div className="w-full mb-16">
-                    <Splide
-                        options={{
-                            type: "loop",
-                            perPage: 4,
-                            gap: "1rem",
-                            autoplay: true,
-                            pauseOnHover: true,
-                            interval: 3000,
-                            arrows: true,
-                            pagination: false,
-                            breakpoints: {
-                                768: {perPage: 1},
-                                1024: {perPage: 2},
-                                1280: {perPage: 3},
-                            },
-                        }}
-                    >
-                        {contactSlides.map((slide, index) => (
-                            <SplideSlide key={index}>
-                                <div className="relative h-[300px] rounded-2xl overflow-hidden group">
-                                    <img
-                                        src={slide.image}
-                                        alt={slide.title}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                    <div
-                                        className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
-                                    <div
-                                        className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                                        <h3 className="text-xl font-bold">{slide.title}</h3>
-                                    </div>
-                                </div>
-                            </SplideSlide>
-                        ))}
-                    </Splide>
+                {/* Map Section */}
+                <div className="w-full h-[400px] my-16 bg-gray-200 overflow-hidden">
+                    <div className="w-full h-full rounded-lg overflow-hidden">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.2755075542196!2d28.97762611571675!3d41.03705897929861!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab7650656bd63%3A0x8ca058b28c20b6c3!2zVGFrc2ltIE1leWRhbsSxLCBHw7xtw7zFn3N1eXUsIDM0NDM1IEJleW_En2x1L8Swc3RhbmJ1bA!5e0!3m2!1str!2str!4v1645789876543!5m2!1str!2str"
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            allowFullScreen
+                            loading="lazy"
+                        ></iframe>
+                    </div>
                 </div>
 
-                {/* Map Section */}
-                <div className="w-full h-[400px] my-16 bg-gray-200">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.2755075542196!2d28.97762611571675!3d41.03705897929861!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab7650656bd63%3A0x8ca058b28c20b6c3!2zVGFrc2ltIE1leWRhbsSxLCBHw7xtw7zFn3N1eXUsIDM0NDM1IEJleW_En2x1L8Swc3RhbmJ1bA!5e0!3m2!1str!2str!4v1645789876543!5m2!1str!2str"
-                        width="100%"
-                        height="100%"
-                        style={{border: 0}}
-                        allowFullScreen
-                        loading="lazy"
-                    ></iframe>
-                </div>
 
                 {/* Contact Form */}
                 <div className="max-w-7xl mx-auto px-4 mb-16">
