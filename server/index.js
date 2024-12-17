@@ -682,3 +682,12 @@ app.listen(PORT, () => {
     DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET'
   });
 });
+
+// Ortam değişkenlerini kontrol etmek için log ekleyin
+console.log('Database Config:', {
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    // Güvenlik için password'ü loglama
+    user: process.env.DB_USER
+});
