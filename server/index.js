@@ -18,7 +18,10 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'], // React uygulamanızın çalıştığı port
+    origin: [
+        'http://localhost:3000',
+        'https://gezirehberim.netlify.app'  // Netlify sitenizin URL'i
+    ],
     credentials: true
 }));
 app.use(express.json());
@@ -31,8 +34,9 @@ const config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   options: {
-    encrypt: false,
-    trustServerCertificate: true
+    encrypt: true,
+    trustServerCertificate: true,
+    enableArithAbort: true
   }
 };
 
